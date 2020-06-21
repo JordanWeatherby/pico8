@@ -72,7 +72,7 @@ function ballwallcollision()
 		--ball position next frame--
 	local nextx = ball.x + ball.dx
 	local nexty = ball.y + ball.dy
-
+	
 	local wallx1=ball.r --left wall
 	local wallx2=127-ball.r --right wall
 	local wally1=ui_h+ball.r -- ceiling
@@ -397,7 +397,7 @@ function update_gameover()
 	--game over state--
 	if btn(5) then
 		startgame()
-end
+	end
 end
 
 function update_game()
