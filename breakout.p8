@@ -379,9 +379,31 @@ end
 --helper functions--
 
 function hcenter(s)
-  -- given a string length
-  -- return horizontal position
+  --given length of string
+  --return horizontal center position--
   return 64-s*2
+end
+
+function randint(low, high)
+	--given a min and max
+	--returns a random int--
+	return flr(rnd(high)) + low
+end
+
+function randpn()
+	--returns 1 or -1 randomly
+	
+	if rnd() >= 0.5 then
+		return 1
+	else
+		return -1
+	end
+end
+
+function hright(s)
+	--given length of string
+ --return horizontal right position--
+ return 128-s*4
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
