@@ -7,7 +7,7 @@ function _init()
 	--initialise--
 	cls()
 	
-	resetgame()
+	startgame()
 end
 
 function _update60()
@@ -73,17 +73,28 @@ function ballwallcollision()
 	local nextx = ball.x + ball.dx
 	local nexty = ball.y + ball.dy
 
-	if nextx > 127 or nextx < 0 then
+	local wallx1=ball.r --left wall
+	local wallx2=127-ball.r --right wall
+	local wally1=ui_h+ball.r -- ceiling
+	local wally2=127-ball.r --floor
+	
+	if nextx < wallx1 or nextx > wallx2 then
 		--left and right walls--
-		mid(0,nextx,127) --sets ball to 0 or 127
+		nextx=mid(wallx1,nextx,wallx2) --sets ball to 0 or 127
 		ball.dx *= -1
 		sfx(01)
 	end
-	if nexty > 127 or nexty < 0 then
-		--top and bottom walls--
-		mid(0,nexty,127) --sets ball to 0 or 127
+	
+	if nexty < wally1 then
+		--top wall--
+		nexty=mid(wally1,nexty,wally2) --sets ball to 0 or 127
 		ball.dy *= -1
 		sfx(01)
+		
+	elseif nexty > wally2 then
+		--bottom--
+		die()
+		sfx(03)
 	end
 end
 
@@ -112,9 +123,11 @@ function ballpadcollision()
 		if calc_refl_dir(ball, pad_box) then
 			ball.dx = -ball.dx
 			sfx(02)
+			points+=1
 		else
 			ball.dy = -ball.dy
 			sfx(02)
+			points+=1
 		end
 	end
 end
@@ -272,13 +285,15 @@ end
 function draw_start()
 	--start screen--
 	cls()
-	print("breakout", hcenter(8), 30, 11)
-	print("press ❎ to start", hcenter(17), 40, 11)
+	print("breakout", hcenter(8), 40, 11)
+	print("press ❎ to start", hcenter(17), 60, 11)
 end
 
 function draw_gameover()
 	--game over screen--
 	cls()
+	print("game over!", hcenter(10), 40, 8)
+	print("press ❎ to restart", hcenter(19), 60, 8)
 end
 
 function draw_game()
@@ -287,11 +302,19 @@ function draw_game()
 	draw_ball()
 	draw_paddle()
 	draw_bricks()
+	draw_ui()
 end
 
 function draw_background()
 	--render background--
 	cls(1)
+end
+
+function draw_ui()
+	ui_h=7
+	rectfill(0,0,128,ui_h,0)
+	print("lives: "..lives,1,1,7)
+	print("score: "..points,hright(7+#tostr(points)),1,7)
 end
 
 function draw_ball()
@@ -315,17 +338,19 @@ end
 -->8
 --game states--
 
-function resetgame()
+function startgame()
 	mode = "start"
+	lives = 3
+	points = 0
 end
 
 function playgame()
 	mode = "game"
 	
-	ball = {x = 64,
-								dx = 1,
-									y = 64,
-								dy = 1,
+	ball = {x = randint(20,100),
+								dx = randpn(),
+									y = randint(10,64),
+								dy = randpn(),
 									r = 2,
 							col = 9}
 	
@@ -345,10 +370,20 @@ function playgame()
 
 end
 
+function die()
+	lives -= 1
+	
+	if lives <= 0 then
+		gameover()
+	else
+		playgame()
+	end
+	
 end
 
 function gameover()
 	mode = "gameover"
+	sfx(04)
 end
 
 function update_start()
@@ -360,6 +395,9 @@ end
 
 function update_gameover()
 	--game over state--
+	if btn(5) then
+		startgame()
+end
 end
 
 function update_game()
