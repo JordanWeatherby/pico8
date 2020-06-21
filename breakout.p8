@@ -119,6 +119,22 @@ function ballpadcollision()
 	end
 end
 
+function ballbrickcollision()
+	--ball brick collision--
+	for i=1,#bricks do																
+		if ball_hitbox(bricks[i]) and bricks[i].vis then
+			if calc_refl_dir(ball, bricks[i]) then
+				ball.dx = -ball.dx
+			else
+				ball.dy = -ball.dy
+			end
+			sfx(05)
+			points+=1
+			bricks[i].vis = false
+		end
+	end
+end
+
 function ball_hitbox(box)
 	--returns true if ball in specified box--
 	
@@ -270,6 +286,7 @@ function draw_game()
 	draw_background()
 	draw_ball()
 	draw_paddle()
+	draw_bricks()
 end
 
 function draw_background()
@@ -287,6 +304,13 @@ function draw_paddle()
 	rectfill(pad.x, pad.y, pad.x+pad.w, pad.y+pad.h, pad.col)
 end
 
+function draw_bricks()
+	for i=1,#bricks do
+		if(bricks[i].vis) then
+			rectfill(bricks[i].x,bricks[i].y,bricks[i].x+bricks[i].w, bricks[i].y+bricks[i].h, bricks[i].col)
+		end
+	end
+end
 
 -->8
 --game states--
@@ -312,6 +336,15 @@ function playgame()
 								w = 24,
 								h = 3,
 						col = 7}
+	
+	bricks={}
+	
+	for i=1,6 do
+		add(bricks,{x=10*i,y=64,w=5,h=4,col=14,vis=true })
+	end
+
+end
+
 end
 
 function gameover()
@@ -337,6 +370,8 @@ function update_game()
 	ballwallcollision()
 	
 	ballpadcollision()
+	
+	ballbrickcollision()
 	
 	ballmove()
 end
