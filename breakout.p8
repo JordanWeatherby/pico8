@@ -367,18 +367,19 @@ function startgame()
 	mode = "start"
 	lives = 3
 	points = 0
+	--sfx(06)
 end
 
 function playgame()
 	mode = "game"
 	
-	ball = {x = randint(20,100),
+	ball = {x = 64,
 								dx = randpn(),
-									y = randint(10,64),
-								dy = randpn(),
+									y = 70,
+								dy = -1,
 									r = 2,
 							col = 9}
-	
+							
 	pad = {x = 52,
 						vel = 0,
 						acc = 3,
@@ -387,12 +388,25 @@ function playgame()
 								h = 3,
 						col = 7}
 	
-	bricks={}
-	
-	for i=1,6 do
-		add(bricks,{x=10*i,y=64,w=5,h=4,col=14,vis=true })
+	if lives == 3 then
+		buildbricks()
+		
 	end
+end
 
+function buildbricks()
+	bricks={}
+		
+	for i=1,9 do
+		for j=1,8 do
+			add(bricks,{x=12*i,
+			y=8+(6*j),
+			w=10,
+			h=4,
+			col=14,
+			vis=true })
+		end	
+	end
 end
 
 function die()
