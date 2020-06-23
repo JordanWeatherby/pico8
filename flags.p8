@@ -1,20 +1,135 @@
 pico-8 cartridge // http://www.pico-8.com
 version 27
 __lua__
-function _draw()
-	cls(6)
-	palt(0, false)
-	palt(14, true)
-	
-	for i=1,8,2 do
-		spr(i, 10+i*8,64)
-		spr(i+1, 10+(i+1)*8, 64)
-		
-		spr(i+16, 10+i*8,64+8)
-		spr(i+17, 10+(i+1)*8, 64+8)
-	end
+--init and run--
+
+function _init()
+  cls()
+  menu()
 end
 
+function _update()
+  if mode=="menu" then
+    update_menu()
+  elseif mode=="practice" then
+    update_practice()
+  elseif mode=="test" then
+    update_test()
+  end
+end
+
+function _draw()
+  if mode=="menu" then
+    draw_menu()
+  elseif mode=="practice" then
+    draw_practice()
+  elseif mode=="test" then
+    draw_test()
+  end
+end
+
+
+-->8
+--game states--
+
+function menu()
+  mode="menu"
+  
+  menu={
+    x=8,
+    y=40,
+    options={"practice","test"},
+    sel=1,
+    col1=7,
+    col2=3
+  }
+  cx=menu.x
+
+end
+
+function practice()
+  mode="practice"
+end
+
+function test()
+  mode="test"
+end
+
+
+-->8
+--render--
+function draw_menu()
+  cls(6)
+  for i=1, #menu.options do
+    oset=i*8
+    if  i==menu.sel then
+      rectfill(cx,menu.y+oset-1,cx+36,menu.y+oset+5,menu.col1)
+      print(menu.options[i],cx+1,menu.y+oset,menu.col2)
+    else
+      print(menu.options[i],menu.x,menu.y+oset,menu.col1)
+    end
+  end
+end
+
+function draw_practice()
+  cls(6)
+  --make black non transparent--
+  palt(0, false)
+  --make pink transparent--
+  palt(14, true)
+  
+  for i=1,8,2 do
+    spr(i, 10+i*8,64, 2,2)
+
+  end
+end
+
+function draw_test()
+
+end
+-->8
+--update--
+
+function update_cursor()
+  --cursor up--
+  if (btnp(2)) menu.sel-=1 cx=menu.x sfx(0)
+  --cursor down--
+  if (btnp(3)) menu.sel+=1 cx=menu.x sfx(0)
+  --select option--
+  if (btnp(4)) cx=menu.x  sfx(1)
+  --loop options--
+  if (menu.sel>#menu.options) menu.sel=1
+  if (menu.sel<=0) menu.sel=#menu.options
+  
+  --adds bounciness to cursor--
+  cx=lerp(cx,menu.x+5,0.5)
+end
+
+function update_menu()
+  update_cursor()
+  
+  if btnp(4) then
+    if menu.options[menu.sel]=="practice" then
+      practice()
+    end
+  end
+end
+
+function update_practice()
+
+end
+
+function update_test()
+
+end
+
+-->8
+--helper functions--
+
+function lerp(startv,endv,per)
+  --linear interpolation--
+  return(startv+per*(endv-startv))
+end
 __gfx__
 eeeeeeee000008888833333e8888888888888888333333337777777711111aaaaa88888e8888888888888888eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeee000008888833333e8808880880888088333333888777777711111aaaaa88888e8888888888888888eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
