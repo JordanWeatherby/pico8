@@ -121,26 +121,51 @@ function ballpadcollision()
 																	
 	if ball_hitbox(pad_box) then
 		if calc_refl_dir(ball, pad_box) then
+			--horizontal refection--
 			ball.dx = -ball.dx
-			sfx(02)
-			points+=1
+			if ball.x < pad.x+(pad.w/2) then
+				--left pad edge collision--
+				nextx=pad.x-ball.r
+			else
+				--right pad edge collision--
+				nextx=pad.x+pad.w+ball.r
+			end
 		else
+			--vertical refection--
 			ball.dy = -ball.dy
-			sfx(02)
-			points+=1
+			if ball.y > pad.y then
+				--ball under pad--
+				nexty = pad.y+pad.h+ball.r
+			else
+				nexty = pad.y-ball.r
+			end
 		end
+		sfx(02)
+		points+=1
 	end
 end
 
 function ballbrickcollision()
 	--ball brick collision--
-	for i=1,#bricks do																
+	
+	--check if ball hit brick this frame-- 
+	local brickhit=false
+	
+	for i=1,#bricks do
+		--check all brick collisions--																
 		if ball_hitbox(bricks[i]) and bricks[i].vis then
-			if calc_refl_dir(ball, bricks[i]) then
-				ball.dx = -ball.dx
-			else
-				ball.dy = -ball.dy
+			--only visible bricks can be hit--
+			if not brickhit then
+				--only have 1 brick collision per frame--
+				if calc_refl_dir(ball, bricks[i]) then
+					--horizontal reflection--
+					ball.dx = -ball.dx
+				else
+					--vertical reflection--
+					ball.dy = -ball.dy
+				end
 			end
+			brickhit=true
 			sfx(05)
 			points+=1
 			bricks[i].vis = false
@@ -152,8 +177,8 @@ function ball_hitbox(box)
 	--returns true if ball in specified box--
 	
 	--ball position next frame--
-	local nextx = ball.x + ball.dx
-	local nexty = ball.y + ball.dy
+	nextx = ball.x + ball.dx
+	nexty = ball.y + ball.dy
 	
 	if nexty-ball.r > box.y+box.h then
 		--ball underneath box--
@@ -407,9 +432,9 @@ function update_game()
 	
 	ballwallcollision()
 	
-	ballpadcollision()
-	
 	ballbrickcollision()
+	
+	ballpadcollision()
 	
 	ballmove()
 end
