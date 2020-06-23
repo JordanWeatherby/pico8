@@ -37,8 +37,8 @@ end
 
 function ballmove()
 	--move ball based on speed--
-	ball.x += ball.dx
-	ball.y += ball.dy
+	ball.x = nextx
+	ball.y = nexty
 end
 
 function padmove()
