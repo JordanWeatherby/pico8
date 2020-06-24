@@ -6,6 +6,7 @@ __lua__
 function _init()
   cls()
   menu()
+  set_countries()
 end
 
 function _update()
@@ -49,6 +50,7 @@ end
 
 function practice()
   mode="practice"
+  country = countries[randint(1,#countries)]
 end
 
 function test()
@@ -82,6 +84,8 @@ function draw_practice()
     spr(i, 10+i*8,64, 2,2)
 
   end
+
+  print(country,10,10)
 end
 
 function draw_test()
@@ -116,7 +120,9 @@ function update_menu()
 end
 
 function update_practice()
-
+  if btn(5) then
+    practice()
+  end
 end
 
 function update_test()
@@ -130,6 +136,73 @@ function lerp(startv,endv,per)
   --linear interpolation--
   return(startv+per*(endv-startv))
 end
+
+function randint(low, high)
+	--given a min and max
+	--returns a random int--
+	return flr(rnd(high)) + low
+end
+
+function set_countries()
+  countries={
+    "albania",
+    "andorra",
+    "armenia",
+    "austria",
+    "azerbaijan",
+    "belarus",
+    "belgium",
+    "bosnia and herzegovina",
+    "bulgaria",
+    "croatia",
+    "cyprus",
+    "czechia",
+    "denmark",
+    "estonia",
+    "finland",
+    "france",
+    "georgia",
+    "germany",
+    "greece",
+    "hungary",
+    "iceland",
+    "ireland",
+    "italy",
+    "kazakhstan",
+    "kosovo",
+    "latvia",
+    "liechtenstein",
+    "lithuania",
+    "luxembourg",
+    "malta",
+    "moldova",
+    "monaco",
+    "montenegro",
+    "netherlands",
+    "north macedonia",
+    "norway",
+    "poland",
+    "portugal",
+    "romania",
+    "russia",
+    "san marino",
+    "serbia",
+    "slovakia",
+    "slovenia",
+    "spain",
+    "sweden",
+    "switzerland",
+    "turkey",
+    "ukraine",
+    "united kingdom",
+    "vatican city"
+  }
+end
+
+
+
+
+
 __gfx__
 eeeeeeee000008888833333e8888888888888888333333337777777711111aaaaa88888e8888888888888888eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeee000008888833333e8808880880888088333333888777777711111aaaaa88888e8888888888888888eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
