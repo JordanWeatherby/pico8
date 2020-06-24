@@ -7,6 +7,11 @@ function _init()
   cls()
   menu()
   set_countries()
+
+  --make black non transparent--
+  palt(0, false)
+  --make pink transparent--
+  palt(14, true)
 end
 
 function _update()
@@ -50,7 +55,7 @@ end
 
 function practice()
   mode="practice"
-  country = countries[randint(1,#countries)]
+  rand=randint(1,#countries)
 end
 
 function test()
@@ -75,17 +80,11 @@ end
 
 function draw_practice()
   cls(6)
-  --make black non transparent--
-  palt(0, false)
-  --make pink transparent--
-  palt(14, true)
   
-  for i=1,8,2 do
-    spr(i, 10+i*8,64, 2,2)
+  spr(16*ceil(rand/8)+(2*rand)-18, 40,64, 2,2)
+  print(countries[rand], 40, 80)
+  print(rand, 10,10)
 
-  end
-
-  print(country,10,10)
 end
 
 function draw_test()
