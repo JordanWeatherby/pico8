@@ -427,14 +427,14 @@ end
 
 function update_start()
 	--start game state--
-	if btn(5) then
+	if btnp(5) then
 		playgame()
 	end
 end
 
 function update_gameover()
 	--game over state--
-	if btn(5) then
+	if btnp(5) then
 		startgame()
 	end
 end

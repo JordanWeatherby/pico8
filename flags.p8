@@ -120,7 +120,7 @@ function update_menu()
 end
 
 function update_practice()
-  if btn(5) then
+  if btnp(5) then
     practice()
   end
 end
