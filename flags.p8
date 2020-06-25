@@ -55,11 +55,12 @@ end
 
 function practice()
   mode="practice"
-  rand=randint(1,#countries)
+  ypos=0
 end
 
 function test()
   mode="test"
+  rand=randint(1,#countries)
 end
 
 
@@ -80,15 +81,31 @@ end
 
 function draw_practice()
   cls(6)
-  
-  spr(16*ceil(rand/8)+(2*rand)-18, 40,64, 2,2)
-  print(countries[rand], 40, 80)
-  print(rand, 10,10)
 
+  draw_all_flags()
+end
+
+function draw_all_flags()
+  for i=1,#countries do
+    local xoff = 0
+    local yoff = 0
+    local spriten = 16*ceil(i/8)+(2*i)-18
+    local spritey = (i-1)*10+ypos+3
+
+    if fget(spriten) == 0 then
+      
+    else
+    spr(spriten, 10, spritey, 2,2)
+    print(countries[i], 30, spritey,7)
+  end
 end
 
 function draw_test()
+  cls()
 
+  spr(16*ceil(rand/8)+(2*rand)-18, 40,64, 2,2)
+  print(countries[rand], 40, 80)
+  print(rand, 10,10)
 end
 -->8
 --update--
@@ -114,18 +131,28 @@ function update_menu()
   if btnp(4) then
     if menu.options[menu.sel]=="practice" then
       practice()
+    elseif menu.options[menu.sel]=="test" then
+      test()
     end
   end
 end
 
 function update_practice()
-  if btnp(5) then
-    practice()
+  if btn(3) and ypos>-382 then
+    ypos -= 1
+  elseif btn(2) and ypos<0 then
+    ypos +=1
+  elseif btnp(1) and ypos>-382 then
+    ypos = mid(ypos,ypos-128,-382)
+  elseif btnp(0) and ypos<0 then
+    ypos = mid(ypos,ypos+128,0)
   end
 end
 
 function update_test()
-
+  if btnp(5) then
+    practice()
+  end
 end
 
 -->8
