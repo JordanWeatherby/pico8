@@ -89,14 +89,37 @@ function draw_all_flags()
   for i=1,#countries do
     local xoff = 0
     local yoff = 0
+    local lastsprite = 0
     local spriten = 16*ceil(i/8)+(2*i)-18
     local spritey = (i-1)*10+ypos+3
+    
+    --flags represent missing pixels clockwise 1-4 from top--
+    --  0 
+    --3   1
+    --  2
+    local sprite_top = not fget(spriten, 0)
+    local lastsprite_bottom = not fget(lastsprite, 2)
 
-    if fget(spriten) == 0 then
-      
-    else
     spr(spriten, 10, spritey, 2,2)
-    print(countries[i], 30, spritey,7)
+       print(countries[i], 30, spritey,7)
+    -- if sprite_top and lastsprite_bottom then
+    --   --add space between them--
+    --   spr(spriten, 10, spritey+1, 2,2)
+    --   print(countries[i], 30, spritey+1,7)
+    --   print(1, 100, spritey+1,7)
+    -- elseif not sprite_top and not lastsprite_bottom then
+    --   --remove space between them--
+    --   spr(spriten, 10, spritey-1, 2,2)
+    --   print(countries[i], 30, spritey-1,7)
+    --   print(2, 100, spritey-1,7)
+    -- else
+    --   --dont change spacing--
+    --   spr(spriten, 10, spritey, 2,2)
+    --   print(countries[i], 30, spritey,7)
+    --   print(3, 100, spritey,7)
+    -- end
+
+    lastsprite = i
   end
 end
 
@@ -164,9 +187,9 @@ function lerp(startv,endv,per)
 end
 
 function randint(low, high)
-	--given a min and max
-	--returns a random int--
-	return flr(rnd(high)) + low
+    --given a min and max
+    --returns a random int--
+    return flr(rnd(high)) + low
 end
 
 function set_countries()
@@ -358,3 +381,6 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+__gff__
+0000020201010101010101010202050500000202010101010101010102020505000002020000000000000101000002020000020200000000000001010000020200000101010101010000020202020404000001010101010100000202020204040000000000000101010100000202000000000000000001010101000002020000
+0202010100000000000000000202010102020101000000000000000002020101000001010101010100000000020200000000010101010101000000000202000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
