@@ -90,33 +90,33 @@ function draw_all_flags()
     local xoff = 0
     local yoff = 0
     local lastsprite = 0
-    local spriten = 16*ceil(i/8)+(2*i)-18
-    local spritey = (i-1)*10+ypos+3
+    local sprite_n = 16*ceil(i/8)+(2*i)-18
+    local sprite_y = (i-1)*11+ypos+3
     
     --flags represent missing pixels clockwise 1-4 from top--
     --  0 
     --3   1
     --  2
-    local sprite_top = not fget(spriten, 0)
+    local sprite_top = not fget(sprite_n, 0)
     local lastsprite_bottom = not fget(lastsprite, 2)
 
-    spr(spriten, 10, spritey, 2,2)
-       print(countries[i], 30, spritey,7)
+    spr(sprite_n, 10, sprite_y, 2,2)
+    print(countries[i], 30, sprite_y+1,7)
     -- if sprite_top and lastsprite_bottom then
     --   --add space between them--
-    --   spr(spriten, 10, spritey+1, 2,2)
-    --   print(countries[i], 30, spritey+1,7)
-    --   print(1, 100, spritey+1,7)
+    --   spr(sprite_n, 10, sprite_y+1, 2,2)
+    --   print(countries[i], 30, sprite_y+1,7)
+    --   print(1, 100, sprite_y+1,7)
     -- elseif not sprite_top and not lastsprite_bottom then
     --   --remove space between them--
-    --   spr(spriten, 10, spritey-1, 2,2)
-    --   print(countries[i], 30, spritey-1,7)
-    --   print(2, 100, spritey-1,7)
+    --   spr(sprite_n, 10, sprite_y-1, 2,2)
+    --   print(countries[i], 30, sprite_y-1,7)
+    --   print(2, 100, sprite_y-1,7)
     -- else
     --   --dont change spacing--
-    --   spr(spriten, 10, spritey, 2,2)
-    --   print(countries[i], 30, spritey,7)
-    --   print(3, 100, spritey,7)
+    --   spr(sprite_n, 10, sprite_y, 2,2)
+    --   print(countries[i], 30, sprite_y,7)
+    --   print(3, 100, sprite_y,7)
     -- end
 
     lastsprite = i
