@@ -5,7 +5,7 @@ __lua__
 
 function _init()
   cls()
-  menu()
+  startmenu()
   set_countries()
 
   --make black non transparent--
@@ -15,22 +15,34 @@ function _init()
 end
 
 function _update()
-  if mode=="menu" then
-    update_menu()
-  elseif mode=="practice" then
-    update_practice()
+  if mode=="startmenu" then
+    update_startmenu()
+  elseif mode=="practicemenu" then
+    update_practicemenu()
+  elseif mode=="practicelist" then
+    update_practicelist()
+  elseif mode=="practiceflashcard" then
+    update_practiceflashcard()
   elseif mode=="test" then
     update_test()
+  elseif mode=="testover" then
+    update_testover()
   end
 end
 
 function _draw()
-  if mode=="menu" then
+  if mode=="startmenu" then
     draw_menu()
-  elseif mode=="practice" then
-    draw_practice()
+  elseif mode=="practicemenu" then
+    draw_menu()
+  elseif mode=="practicelist" then
+    draw_practicelist()
+  elseif mode=="practiceflashcard" then
+    draw_practiceflashcard()
   elseif mode=="test" then
     draw_test()
+  elseif mode=="testover" then
+    draw_testover()
   end
 end
 
@@ -38,8 +50,8 @@ end
 -->8
 --game states--
 
-function menu()
-  mode="menu"
+function startmenu()
+  mode="startmenu"
   
   menu={
     x=8,
@@ -47,31 +59,71 @@ function menu()
     options={"practice","test"},
     sel=1,
     col1=7,
-    col2=3
+    col2=1
   }
+
   cx=menu.x
 
 end
 
-function practice()
-  mode="practice"
+function practicemenu()
+  mode="practicemenu"
+  
+  menu={
+    x=8,
+    y=40,
+    options={"list","flashcard"},
+    sel=1,
+    col1=7,
+    col2=1
+  }
+
+  cx=menu.x
+
+end
+
+function practicelist()
+  mode="practicelist"
   ypos=0
+end
+
+function practiceflashcard()
+  mode="practiceflashcard"
+  rand=randint(1,#countries)
 end
 
 function test()
   mode="test"
-  rand=randint(1,#countries)
+  ans=randint(1,#countries)
+  score=0
+
+  menu={
+    x=8,
+    y=64,
+    options={},
+    sel=1,
+    col1=7,
+    col2=1
+  }
+  cx=menu.x
+
+  menu.options = testoptions()
 end
 
+function testover()
+  mode="testover"
+
+end
 
 -->8
 --render--
 function draw_menu()
   cls(6)
+
   for i=1, #menu.options do
     oset=i*8
     if  i==menu.sel then
-      rectfill(cx,menu.y+oset-1,cx+36,menu.y+oset+5,menu.col1)
+      rectfill(cx,menu.y+oset-1,cx+(#menu.options[i]*4),menu.y+oset+5,menu.col1)
       print(menu.options[i],cx+1,menu.y+oset,menu.col2)
     else
       print(menu.options[i],menu.x,menu.y+oset,menu.col1)
@@ -79,7 +131,7 @@ function draw_menu()
   end
 end
 
-function draw_practice()
+function draw_practicelist()
   cls(6)
 
   draw_all_flags()
@@ -123,12 +175,26 @@ function draw_all_flags()
   end
 end
 
-function draw_test()
-  cls()
+function draw_practiceflashcard()
+  cls(6)
 
-  spr(16*ceil(rand/8)+(2*rand)-18, 40,64, 2,2)
-  print(countries[rand], 40, 80)
-  print(rand, 10,10)
+  zspr(16*ceil(rand/8)+(2*rand)-18, 32, 24, 2, 2, 4) 
+  print(countries[rand], hcenter(#countries[rand]), 80)
+end
+
+function draw_test()
+
+  draw_menu()
+  zspr(16*ceil(ans/8)+(2*ans)-18, 32, 24, 2, 2, 4)
+  print("score: "..score,10,10,7)
+end
+
+function draw_testover()
+  cls(6)
+  scorestr = "you scored: "..score
+  print(scorestr, hcenter(#scorestr),32,7)
+  print("press 🅾️ to retry", hcenter(17), 64, 7)
+  print("press ❎ to return to main menu", hcenter(31), 70, 7)
 end
 -->8
 --update--
@@ -148,36 +214,106 @@ function update_cursor()
   cx=lerp(cx,menu.x+5,0.5)
 end
 
-function update_menu()
+function update_startmenu()
   update_cursor()
   
   if btnp(4) then
     if menu.options[menu.sel]=="practice" then
-      practice()
+      practicemenu()
     elseif menu.options[menu.sel]=="test" then
       test()
     end
   end
 end
 
-function update_practice()
-  if btn(3) and ypos>-382 then
+function update_practicemenu()
+  update_cursor()
+  
+  if btnp(4) then
+    if menu.options[menu.sel]=="list" then
+      practicelist()
+    elseif menu.options[menu.sel]=="flashcard" then
+      practiceflashcard()
+    end
+  elseif btnp(5) then
+    startmenu()
+  end
+end
+
+function update_practicelist()
+  if btn(3) and ypos>-436 then
     ypos -= 1
   elseif btn(2) and ypos<0 then
     ypos +=1
-  elseif btnp(1) and ypos>-382 then
-    ypos = mid(ypos,ypos-128,-382)
+  elseif btnp(1) and ypos>-436 then
+    ypos = mid(ypos,ypos-128,-436)
   elseif btnp(0) and ypos<0 then
     ypos = mid(ypos,ypos+128,0)
+  elseif btnp(5) then
+    practicemenu()
+  end
+end
+
+function update_practiceflashcard()
+  if btnp(4) then
+    rand=randint(1,#countries)
+  elseif btnp(5) then
+    practicemenu()
   end
 end
 
 function update_test()
-  if btnp(5) then
-    practice()
+
+  update_cursor()
+  
+  if btnp(4) then
+    if menu.options[menu.sel] == countries[ans] then
+      score += 1
+      next_question()
+    else
+      testover()
+    end
   end
 end
 
+function testoptions()
+  answers = {}
+  shufanswers = {}
+
+  add(answers, countries[ans])
+  while #answers<4 do
+    randans = randint(1,#countries)
+
+    if not (tablecontains(answers,randans)) then
+      add(answers, countries[randans])
+    end
+  end
+
+  for i = #answers, 1, -1 do
+    local j = randint(1,i)
+    answers[i], answers[j] = answers[j], answers[i]
+    --add(shufanswers,answers[i])
+  end 
+
+  return answers
+end
+
+function next_question()
+  ans=randint(1,#countries)
+  
+  cx=menu.x
+  menu.sel=1
+
+  menu.options = testoptions()
+end
+
+function update_testover()
+  if btnp(4) then
+    test()
+  elseif btnp(5) then
+    startmenu()
+  end
+end
 -->8
 --helper functions--
 
@@ -190,6 +326,34 @@ function randint(low, high)
     --given a min and max
     --returns a random int--
     return flr(rnd(high)) + low
+end
+
+function zspr(n,dx,dy,w,h,dz)
+    --scales sprite n (plus w and h sprite range)
+    --at location dx dy by dz amount
+  sx = 8 * (n % 16)
+  sy = 8 * flr(n / 16)
+  sw = 8 * w
+  sh = 8 * h
+  dw = sw * dz
+  dh = sh * dz
+
+  sspr(sx,sy,sw,sh, dx,dy,dw,dh)
+end
+
+function hcenter(s)
+  --given length of string
+  --return horizontal center position--
+  return 64-s*2
+end
+
+function tablecontains(table, element)
+  for i=1,#table do
+    if table[i] == element then
+      return true
+    end
+  end
+  return false
 end
 
 function set_countries()
