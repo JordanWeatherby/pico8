@@ -1,0 +1,6 @@
+# Ignore everything
+*
+
+# Except .p8 files and gitignore
+!.gitignore
+!*.p8
