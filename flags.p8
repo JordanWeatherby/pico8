@@ -4,8 +4,9 @@ __lua__
 --init and run--
 
 function _init()
+  --initialise game--
   cls()
-  startmenu()
+  start_menu()
   set_countries()
 
   --make black non transparent--
@@ -15,10 +16,11 @@ function _init()
 end
 
 function _update()
+  --update game state each frame--
   if mode=="startmenu" then
-    update_startmenu()
+    update_start_menu()
   elseif mode=="practicemenu" then
-    update_practicemenu()
+    update_practice_menu()
   elseif mode=="practicelist" then
     update_practicelist()
   elseif mode=="practiceflashcard" then
@@ -31,10 +33,11 @@ function _update()
 end
 
 function _draw()
+ --update game screen each frame--
   if mode=="startmenu" then
-    draw_menu()
+    draw_menu(startmenu)
   elseif mode=="practicemenu" then
-    draw_menu()
+    draw_menu(practicemenu)
   elseif mode=="practicelist" then
     draw_practicelist()
   elseif mode=="practiceflashcard" then
@@ -50,76 +53,95 @@ end
 -->8
 --game states--
 
-function startmenu()
+function start_menu()
+  --initial game menu--
   mode="startmenu"
   
-  menu={
+  startmenu={
     x=8,
     y=40,
     options={"practice","test"},
     sel=1,
     col1=7,
-    col2=1
+    col2=1,
+    bkgcol=6
   }
 
-  cx=menu.x
+  --set menu cursor location--
+  cx=startmenu.x
 
 end
 
-function practicemenu()
+function practice_menu()
+  --menu for practice modes--
   mode="practicemenu"
   
-  menu={
+  practicemenu={
     x=8,
     y=40,
     options={"list","flashcard"},
     sel=1,
     col1=7,
-    col2=1
+    col2=1,
+    bkgcol=6
   }
 
-  cx=menu.x
+  --set menu cursor location--
+  cx=practicemenu.x
 
 end
 
 function practicelist()
+  --list of all flags in game--
   mode="practicelist"
+
+  --used for scrolling list--
   ypos=0
 end
 
 function practiceflashcard()
+  --show large flag image with name--
   mode="practiceflashcard"
   rand=randint(1,#countries)
 end
 
 function test()
+  --test users flag skills--
   mode="test"
-  ans=randint(1,#countries)
   score=0
 
-  menu={
+  --pick a random flag--
+  ans=randint(1,#countries)
+
+  answermenu={
     x=8,
     y=64,
-    options={},
+    options={""},
     sel=1,
     col1=7,
-    col2=1
+    col2=1,
+    bkgcol=6
   }
-  cx=menu.x
+  cx=answermenu.x
 
-  menu.options = testoptions()
+  --set answers, answers are really a menu--
+  answermenu.options = testoptions()
 end
 
 function testover()
+  --test complete--
   mode="testover"
-
 end
 
 -->8
 --render--
-function draw_menu()
-  cls(6)
+function draw_menu(menu)
+  --generic menu draw function--
 
+  --set background--
+  cls(menu.bkgcol)
+
+  --draw all menu options with first option in a box with secondary colour--
   for i=1, #menu.options do
     oset=i*8
     if  i==menu.sel then
@@ -184,7 +206,7 @@ end
 
 function draw_test()
 
-  draw_menu()
+  draw_menu(answermenu)
   zspr(16*ceil(ans/8)+(2*ans)-18, 32, 24, 2, 2, 4)
   print("score: "..score,10,10,7)
 end
@@ -199,7 +221,7 @@ end
 -->8
 --update--
 
-function update_cursor()
+function update_cursor(menu)
   --cursor up--
   if (btnp(2)) menu.sel-=1 cx=menu.x sfx(0)
   --cursor down--
@@ -214,29 +236,29 @@ function update_cursor()
   cx=lerp(cx,menu.x+5,0.5)
 end
 
-function update_startmenu()
-  update_cursor()
+function update_start_menu()
+  update_cursor(startmenu)
   
   if btnp(4) then
-    if menu.options[menu.sel]=="practice" then
-      practicemenu()
-    elseif menu.options[menu.sel]=="test" then
+    if startmenu.options[startmenu.sel]=="practice" then
+      practice_menu()
+    elseif startmenu.options[startmenu.sel]=="test" then
       test()
     end
   end
 end
 
-function update_practicemenu()
-  update_cursor()
+function update_practice_menu()
+  update_cursor(practicemenu)
   
   if btnp(4) then
-    if menu.options[menu.sel]=="list" then
+    if practicemenu.options[practicemenu.sel]=="list" then
       practicelist()
-    elseif menu.options[menu.sel]=="flashcard" then
+    elseif practicemenu.options[practicemenu.sel]=="flashcard" then
       practiceflashcard()
     end
   elseif btnp(5) then
-    startmenu()
+    start_menu()
   end
 end
 
@@ -250,7 +272,7 @@ function update_practicelist()
   elseif btnp(0) and ypos<0 then
     ypos = mid(ypos,ypos+128,0)
   elseif btnp(5) then
-    practicemenu()
+    practice_menu()
   end
 end
 
@@ -258,16 +280,16 @@ function update_practiceflashcard()
   if btnp(4) then
     rand=randint(1,#countries)
   elseif btnp(5) then
-    practicemenu()
+    practice_menu()
   end
 end
 
 function update_test()
 
-  update_cursor()
+  update_cursor(answermenu)
   
   if btnp(4) then
-    if menu.options[menu.sel] == countries[ans] then
+    if answermenu.options[answermenu.sel] == countries[ans] then
       score += 1
       next_question()
     else
@@ -278,7 +300,6 @@ end
 
 function testoptions()
   answers = {}
-  shufanswers = {}
 
   add(answers, countries[ans])
   while #answers<4 do
@@ -292,7 +313,6 @@ function testoptions()
   for i = #answers, 1, -1 do
     local j = randint(1,i)
     answers[i], answers[j] = answers[j], answers[i]
-    --add(shufanswers,answers[i])
   end 
 
   return answers
@@ -301,17 +321,17 @@ end
 function next_question()
   ans=randint(1,#countries)
   
-  cx=menu.x
-  menu.sel=1
+  cx=answermenu.x
+  answermenu.sel=1
 
-  menu.options = testoptions()
+  answermenu.options = testoptions()
 end
 
 function update_testover()
   if btnp(4) then
     test()
   elseif btnp(5) then
-    startmenu()
+    start_menu()
   end
 end
 -->8
