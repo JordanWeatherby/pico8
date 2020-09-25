@@ -22,9 +22,9 @@ function _update()
   elseif mode=="practicemenu" then
     update_practice_menu()
   elseif mode=="practicelist" then
-    update_practicelist()
+    update_practice_list()
   elseif mode=="practiceflashcard" then
-    update_practiceflashcard()
+    update_practice_flashcard()
   elseif mode=="test" then
     update_test()
   elseif mode=="testover" then
@@ -39,9 +39,9 @@ function _draw()
   elseif mode=="practicemenu" then
     draw_menu(practicemenu)
   elseif mode=="practicelist" then
-    draw_practicelist()
+    draw_practice_list()
   elseif mode=="practiceflashcard" then
-    draw_practiceflashcard()
+    draw_practice_flashcard()
   elseif mode=="test" then
     draw_test()
   elseif mode=="testover" then
@@ -91,7 +91,7 @@ function practice_menu()
 
 end
 
-function practicelist()
+function practice_list()
   --list of all flags in game--
   mode="practicelist"
 
@@ -99,8 +99,8 @@ function practicelist()
   ypos=0
 end
 
-function practiceflashcard()
-  --show large flag image with name--
+function practice_flashcard()
+  --large flag image with name--
   mode="practiceflashcard"
   rand=randint(1,#countries)
 end
@@ -153,13 +153,12 @@ function draw_menu(menu)
   end
 end
 
-function draw_practicelist()
+function draw_practice_list()
+  --draw list of all flags in game--
+
+  --grey background--
   cls(6)
 
-  draw_all_flags()
-end
-
-function draw_all_flags()
   for i=1,#countries do
     local xoff = 0
     local yoff = 0
@@ -197,21 +196,34 @@ function draw_all_flags()
   end
 end
 
-function draw_practiceflashcard()
+
+function draw_practice_flashcard()
+  --draw large flag image with name--
+
+  --grey background--
   cls(6)
 
-  zspr(16*ceil(rand/8)+(2*rand)-18, 32, 24, 2, 2, 4) 
+  --zspr scales sprite, here have scaled x4--
+  zspr(16*ceil(rand/8)+(2*rand)-18, 32, 24, 2, 2, 4)
+
+  --show country name--
   print(countries[rand], hcenter(#countries[rand]), 80)
 end
 
 function draw_test()
-
+  --draw large flag and display answers and score--
   draw_menu(answermenu)
+
+  --zspr scales sprite, here have scaled x4--
   zspr(16*ceil(ans/8)+(2*ans)-18, 32, 24, 2, 2, 4)
+
+  --display score--
   print("score: "..score,10,10,7)
 end
 
 function draw_testover()
+  --draw test over screen--
+
   cls(6)
   scorestr = "you scored: "..score
   print(scorestr, hcenter(#scorestr),32,7)
@@ -222,6 +234,8 @@ end
 --update--
 
 function update_cursor(menu)
+  --move menu cursor based on button input--
+
   --cursor up--
   if (btnp(2)) menu.sel-=1 cx=menu.x sfx(0)
   --cursor down--
@@ -237,6 +251,7 @@ function update_cursor(menu)
 end
 
 function update_start_menu()
+  --handle start menu selection--
   update_cursor(startmenu)
   
   if btnp(4) then
@@ -249,67 +264,85 @@ function update_start_menu()
 end
 
 function update_practice_menu()
+  --handle practice menu selection--
   update_cursor(practicemenu)
   
   if btnp(4) then
     if practicemenu.options[practicemenu.sel]=="list" then
-      practicelist()
+      practice_list()
     elseif practicemenu.options[practicemenu.sel]=="flashcard" then
-      practiceflashcard()
+      practice_flashcard()
     end
   elseif btnp(5) then
     start_menu()
   end
 end
 
-function update_practicelist()
+function update_practice_list()
+  --handle button input on flag list--
+
   if btn(3) and ypos>-436 then
+    --scroll down--
     ypos -= 1
   elseif btn(2) and ypos<0 then
+    --scroll up--
     ypos +=1
   elseif btnp(1) and ypos>-436 then
+    --jump one screen down--
     ypos = mid(ypos,ypos-128,-436)
   elseif btnp(0) and ypos<0 then
+    --jump one screen up--
     ypos = mid(ypos,ypos+128,0)
   elseif btnp(5) then
+    --go back to practice menu--
     practice_menu()
   end
 end
 
-function update_practiceflashcard()
+function update_practice_flashcard()
+  --handle button input on flashcard screen--
   if btnp(4) then
+    --select new random flag--
     rand=randint(1,#countries)
   elseif btnp(5) then
+    --go back to practice menu--
     practice_menu()
   end
 end
 
 function update_test()
-
+  --handle test answer selection--
   update_cursor(answermenu)
   
   if btnp(4) then
     if answermenu.options[answermenu.sel] == countries[ans] then
+      --correct answer--
       score += 1
       next_question()
     else
+      --incorrect answer--
       testover()
     end
   end
 end
 
 function testoptions()
-  answers = {}
+  --generate test answer options--
+  local answers = {}
 
+  --add correct answer--
   add(answers, countries[ans])
   while #answers<4 do
+    --get random country--
     randans = randint(1,#countries)
-
-    if not (tablecontains(answers,randans)) then
+    print(randans,100,10,7)
+    if not (tablecontains(answers,countries[randans])) then
+      --add random country to answers if not already added--.
       add(answers, countries[randans])
     end
   end
 
+  --shuffle answers array--
   for i = #answers, 1, -1 do
     local j = randint(1,i)
     answers[i], answers[j] = answers[j], answers[i]
@@ -319,18 +352,23 @@ function testoptions()
 end
 
 function next_question()
-  ans=randint(1,#countries)
+  --pick a new country and generate new answers--
   
+  --reset cursor--
   cx=answermenu.x
   answermenu.sel=1
 
+  ans=randint(1,#countries)
   answermenu.options = testoptions()
 end
 
 function update_testover()
+  --hand button input on test over screen--
   if btnp(4) then
+    --restart--
     test()
   elseif btnp(5) then
+    --go to start menu--
     start_menu()
   end
 end
@@ -368,6 +406,7 @@ function hcenter(s)
 end
 
 function tablecontains(table, element)
+  --checks if given element is in given table--
   for i=1,#table do
     if table[i] == element then
       return true
@@ -485,32 +524,32 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-111111111111111122222222222222221111111111111111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee7677777788888888cccccaaaaa88888e8888888888888888
-11117171717111112222222222222222111a111111111111999999999999999988888888888888886567777788888888cccccaaaaa88888e8888888888888888
-1111111111111111222222222222222211a0a11111111111999999999999999988888888888888887677777788888888cccccaaaaa88888e8888888888888888
-1117119911171111222222222222222211aaa11111111111999999999999999988888888888888887777777788888888cccccaa4aa88888e8888888888888888
-111119999911111177777777777777771111111111111111333333333333333377777777777777777777777788888888ccccca484a88888e8888888888888888
-111199999991111177777777777777778888888888888888333333333333333377777777777777777777777788888888ccccca4c4a88888e7777777777777777
-111119999911111122222222222222228888888888888888333333333333333377777777777777777777777788888888cccccaa4aa88888e7777777777777777
-1111199991111111222222222222222288888888888888888888888888888888cccccccccccccccc7777777788888888cccccaaaaa88888e7777777777777777
-1111119111111111222222222222222288888888888888888888888888888888cccccccccccccccc7777777788888888cccccaaaaa88888e7777777777777777
-1111111111111111222222222222222288888888888888888888888888888888cccccccccccccccc7777777788888888cccccaaaaa88888e7777777777777777
+111111111111111122222222222222221111111111111111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee767777778888888811111aaaaa88888e8888888888888888
+11117171717111112222222222222222111a11111111111199999999999999998888888888888888656777778888888811111aaaaa88888e8888888888888888
+1111111111111111222222222222222211a0a1111111111199999999999999998888888888888888767777778888888811111aaaaa88888e8888888888888888
+1117119911171111222222222222222211aaa1111111111199999999999999998888888888888888777777778888888811111aa4aa88888e8888888888888888
+11111999991111117777777777777777111111111111111133333333333333337777777777777777777777778888888811111a484a88888e8888888888888888
+11119999999111117777777777777777888888888888888833333333333333337777777777777777777777778888888811111a4c4a88888e7777777777777777
+11111999991111112222222222222222888888888888888833333333333333337777777777777777777777778888888811111aa4aa88888e7777777777777777
+1111199991111111222222222222222288888888888888888888888888888888cccccccccccccccc777777778888888811111aaaaa88888e7777777777777777
+1111119111111111222222222222222288888888888888888888888888888888cccccccccccccccc777777778888888811111aaaaa88888e7777777777777777
+1111111111111111222222222222222288888888888888888888888888888888cccccccccccccccc777777778888888811111aaaaa88888e7777777777777777
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-999999999999999eeeeeeeeeeeeeeeee888a888a888a888888871178888888887777777777777777333333888888888811111aaaaa88888eeeeeeeeeeeeeeeee
-988888888888889e88888888888888888888a88a88a8888888871178888888887777777777777777333333888888888811111aaaaa88888e7777777777777777
-988888888888889e888888888888888888888a888a888888888711788888888877777777777777773333aaaa8888888811111aaaaa88888e7777777777777777
-988888898888889e88888888888888888888888a8888888877771177777777777777777777777777333a8888a888888811111aaaaa88888e7777777777777777
-988898989898889e7777777777777777aaaaa8a8a8aaaaaa11111111111111117777777777777777333a8778a888888811111aaaaa88888e1111111111111111
-988889919988889e77777777777777778888888a8888888811111111111111118888888888888888333a8778a888888811111aaaaa88888e1111111111111111
-988888939888889e777777777777777788888a888a88888877771177777777778888888888888888333a8888a888888811111aaaaa88888e1111111111111111
-988889898988889e11111111111111118888a88a88a88888888711788888888888888888888888883333aaaa8888888811111aaaaa88888e8888888888888888
-988888888888889e1111111111111111888a888a888a888888871178888888888888888888888888333333888888888811111aaaaa88888e8888888888888888
-999999999999999e1111111111111111888888888888888888871178888888888888888888888888333333888888888811111aaaaa88888e8888888888888888
+999999999999999eeeeeeeeeeeeeeeee888a888a888a888e88871178888888887777777777777777333333888888888811111aaaaa88888eeeeeeeeeeeeeeeee
+988888888888889e88888888888888888888a88a88a8888e88871178888888887777777777777777333333888888888811111aaaaa88888e7777777777777777
+988888888888889e888888888888888888888a888a88888e888711788888888877777777777777773333aaaa8888888811111aaaaa88888e7777777777777777
+988888898888889e88888888888888888888888a8888888e77771177777777777777777777777777333a8888a888888811111aaaaa88888e7777777777777777
+988898989898889e7777777777777777aaaaa8a8a8aaaaae11111111111111117777777777777777333a8778a888888811111aaaaa88888e1111111111111111
+988889919988889e77777777777777778888888a8888888e11111111111111118888888888888888333a8778a888888811111aaaaa88888e1111111111111111
+988888939888889e777777777777777788888a888a88888e77771177777777778888888888888888333a8888a888888811111aaaaa88888e1111111111111111
+988889898988889e11111111111111118888a88a88a8888e888711788888888888888888888888883333aaaa8888888811111aaaaa88888e8888888888888888
+988888888888889e1111111111111111888a888a888a888e88871178888888888888888888888888333333888888888811111aaaaa88888e8888888888888888
+999999999999999e1111111111111111888888888888888e88871178888888888888888888888888333333888888888811111aaaaa88888e8888888888888888
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -519,12 +558,12 @@ eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 7777777777777777eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee8888888888888888cccccaaccccccccc8888888888eeeeee8888888888888888
 77777777777777778888888888888888777777777777777777777777777777778888888888888888cccccaaccccccccc8888888888eeeeee8888888888888888
-77777777777777778888888888888888777777777777777777777777777777778888888888888888cccccaaccccccccc8888778888eeeeee8887778888888888
-777777777777777788889988888888887788877777777777777cc777777777779999999999999999cccccaaccccccccc8888778888eeeeee8878888888888888
-777777777777777711187781111111111187811111111111ccc77ccccccccccc9998799999999999aaaaaaaaaaaaaaaa8877777788eeeeee8878887888888888
-cccccccccccccccc11187781111111111187811111111111cccccccccccccccc999a899999999999aaaaaaaaaaaaaaaa8877777788eeeeee8878888888888888
-cccccccccccccccc11187781111111111111111111111111cccccccccccccccc9999999999999999cccccaaccccccccc8888778888eeeeee8887778888888888
-cccccccccccccccc7777887777777777888188888888888888888888888888888888888888888888cccccaaccccccccc8888778888eeeeee8888888888888888
+77777779977777778888888888888888777777777777777777777777777777778888888888888888cccccaaccccccccc8888778888eeeeee8887778888888888
+777777999977777788889988888888887788877777777777777cc777777777779999999999999999cccccaaccccccccc8888778888eeeeee8878888888888888
+777777399377777711187781111111111187811111111111ccc77ccccccccccc9998799999999999aaaaaaaaaaaaaaaa8877777788eeeeee8878887888888888
+ccccc3c99c3ccccc11187781111111111187811111111111cccccccccccccccc999a899999999999aaaaaaaaaaaaaaaa8877777788eeeeee8878888888888888
+cccccc3993cccccc11187781111111111111111111111111cccccccccccccccc9999999999999999cccccaaccccccccc8888778888eeeeee8887778888888888
+cccccc7777cccccc7777887777777777888188888888888888888888888888888888888888888888cccccaaccccccccc8888778888eeeeee8888888888888888
 cccccccccccccccc7777777777777777888888888888888888888888888888888888888888888888cccccaaccccccccc8888888888eeeeee8888888888888888
 cccccccccccccccc7777777777777777888888888888888888888888888888888888888888888888cccccaaccccccccc8888888888eeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
